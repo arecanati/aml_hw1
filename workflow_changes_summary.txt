@@ -1,0 +1,89 @@
+AML HW1 Workflow: Changes and Additions Log
+===========================================
+
+Project context
+---------------
+- Dataset: UCI Cleveland heart disease subset (14 columns), loaded from `data/raw/processed.cleveland.data`.
+- Goal: build an end-to-end pipeline from raw/dirty data to predictive models per assignment instructions.
+
+Chronological flow of work
+--------------------------
+1) Environment and notebook recovery
+- Verified Python/Jupyter environment and package health in local `venv`.
+- Detected that `notebooks/aml_hw1.ipynb` was empty at one point and recreated it as a valid notebook.
+
+2) Assignment alignment
+- Extracted assignment requirements from `_A1__From_Dirty_Data_to_Predictive_Models.pdf`.
+- Updated model plan to match required approaches:
+  - Generative: Naive Bayes
+  - Discriminative: Linear Regression (used as classifier with threshold 0.5)
+
+3) Notebook structure and imports
+- Standardized import block and added comments for clarity.
+- Added metrics and plotting utilities required for evaluation and reporting.
+- Set notebook kernel metadata to match local environment (`aml_hw1`) for stable execution.
+
+4) Raw data loading and documentation
+- Defined explicit column names from `heart-disease.names` (raw file has no header).
+- Parsed missing tokens (`?`) as `NaN`.
+- Added step outputs showing:
+  - dataset shape
+  - missing-value counts per column
+  - exact row indices with missing values
+  - subset table containing only rows with missing values
+
+5) Preprocessing decisions
+- Created binary target:
+  - `target_bin = 1` if original `target > 0`, else `0`
+- Added missingness indicator features:
+  - `ca_missing`
+  - `thal_missing`
+- Imputed missing feature values with median.
+- Added engineered features:
+  - `maxhr_age_ratio = thalach / age`
+  - `exercise_risk = exang * oldpeak`
+  - `thal_is_abnormal = (thal != 3)`
+- Kept `target_bin` as the last column by convention.
+
+6) Processed data artifact
+- Saved cleaned/engineered table to:
+  - `data/processed/heart_cleveland_clean.csv`
+- This formalized the pipeline as raw -> processed -> modeling.
+
+7) Train/test setup
+- Used one stratified split for fair model comparison:
+  - `train_test_split(..., test_size=0.2, random_state=SEED, stratify=y)`
+
+8) Model implementation
+- Naive Bayes branch:
+  - BernoulliNB with required alpha comparison (`alpha=1.0` and `alpha=0.01`)
+  - GaussianNB added as additional comparison for continuous features
+- Linear Regression branch:
+  - Trained on standardized features
+  - Converted predictions to class labels with thresholding
+  - Per assignment primary threshold: `0.5`
+  - Added threshold sensitivity analysis at `0.3`, `0.5`, `0.7`
+
+9) Evaluation and visualization
+- Computed and reported:
+  - Accuracy, Precision, Recall, F1
+  - Classification reports
+  - Confusion matrices
+- Added visual outputs:
+  - confusion matrix heatmaps
+  - model metric comparison table
+  - grouped bar chart of metrics across models
+  - ROC curves with AUC values
+  - threshold-vs-metric plot for Linear Regression
+
+10) Validation status
+- Re-ran notebook execution after each major update.
+- Final notebook executes end-to-end successfully in the configured environment.
+
+Notes
+-----
+- This log summarizes implementation changes and rationale-ready decisions for report writing.
+- Work completed using CODEX
+- Main final deliverables expected:
+  - runnable notebook (`.ipynb`)
+  - 5-7 page PDF report with embedded plots and discussion.
