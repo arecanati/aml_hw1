@@ -3,87 +3,43 @@ AML HW1 Workflow: Changes and Additions Log
 
 Project context
 ---------------
-- Dataset: UCI Cleveland heart disease subset (14 columns), loaded from `data/raw/processed.cleveland.data`.
-- Goal: build an end-to-end pipeline from raw/dirty data to predictive models per assignment instructions.
+- Dataset used: UCI Cleveland heart disease subset (`data/raw/processed.cleveland.data`).
+- Goal: end-to-end pipeline from raw data to evaluated predictive models.
 
-Chronological flow of work
---------------------------
-1) Environment and notebook recovery
-- Verified Python/Jupyter environment and package health in local `venv`.
-- Detected that `notebooks/aml_hw1.ipynb` was empty at one point and recreated it as a valid notebook.
-
-2) Assignment alignment
-- Extracted assignment requirements from `_A1__From_Dirty_Data_to_Predictive_Models.pdf`.
-- Updated model plan to match required approaches:
-  - Generative: Naive Bayes
-  - Discriminative: Linear Regression (used as classifier with threshold 0.5)
-
-3) Notebook structure and imports
-- Standardized import block and added comments for clarity.
-- Added metrics and plotting utilities required for evaluation and reporting.
-- Set notebook kernel metadata to match local environment (`aml_hw1`) for stable execution.
-
-4) Raw data loading and documentation
-- Defined explicit column names from `heart-disease.names` (raw file has no header).
-- Parsed missing tokens (`?`) as `NaN`.
-- Added step outputs showing:
-  - dataset shape
-  - missing-value counts per column
-  - exact row indices with missing values
-  - subset table containing only rows with missing values
-
-5) Preprocessing decisions
-- Created binary target:
-  - `target_bin = 1` if original `target > 0`, else `0`
-- Added missingness indicator features:
-  - `ca_missing`
-  - `thal_missing`
-- Imputed missing feature values with median.
+Key updates completed
+---------------------
+1) Data and feature pipeline
+- Created binary target `target_bin` (`target > 0`).
+- Added missingness indicators: `ca_missing`, `thal_missing`.
 - Added engineered features:
-  - `maxhr_age_ratio = thalach / age`
-  - `exercise_risk = exang * oldpeak`
-  - `thal_is_abnormal = (thal != 3)`
-- Kept `target_bin` as the last column by convention.
+  - `maxhr_age_ratio`
+  - `exercise_risk`
+  - `thal_is_abnormal`
+- Added short inline comments in Step 2 describing each engineered feature in plain language.
 
-6) Processed data artifact
-- Saved cleaned/engineered table to:
-  - `data/processed/heart_cleveland_clean.csv`
-- This formalized the pipeline as raw -> processed -> modeling.
+2) Modeling pipeline alignment
+- Kept one stratified split policy (`test_size=0.2`, `random_state=SEED`, `stratify=y`).
+- Step 5 now tunes `GaussianNB(var_smoothing)` over a small candidate grid and keeps the best result.
+- Step 8 ablation now uses the same preprocessing policy as Steps 5/6 (train-only imputation + one-hot encoding).
+- Step 8 Gaussian now reuses the tuned `var_smoothing` from Step 5, so Step 7 Gaussian accuracy and Step 8 post-engineered Gaussian accuracy are consistent.
 
-7) Train/test setup
-- Used one stratified split for fair model comparison:
-  - `train_test_split(..., test_size=0.2, random_state=SEED, stratify=y)`
+3) Evaluation and reporting clarity
+- Metrics reported consistently: Accuracy, Precision, Recall, F1, confusion matrices, classification reports.
+- Step 8 remains a controlled pre-vs-post engineered feature comparison (not a separate leaderboard).
 
-8) Model implementation
-- Naive Bayes branch:
-  - BernoulliNB with required alpha comparison (`alpha=1.0` and `alpha=0.01`)
-  - GaussianNB added as additional comparison for continuous features
-- Linear Regression branch:
-  - Trained on standardized features
-  - Converted predictions to class labels with thresholding
-  - Per assignment primary threshold: `0.5`
-  - Added threshold sensitivity analysis at `0.3`, `0.5`, `0.7`
+4) Code quality cleanup (no functional intent change)
+- Reduced redundancy by adding shared helpers in the first code cell:
+  - shared preprocessing helper
+  - shared metric computation helper
+  - shared metrics-print helper
+- Reused helpers across Steps 5, 6, and 8 to avoid duplicated logic and reduce mismatch risk.
 
-9) Evaluation and visualization
-- Computed and reported:
-  - Accuracy, Precision, Recall, F1
-  - Classification reports
-  - Confusion matrices
-- Added visual outputs:
-  - confusion matrix heatmaps
-  - model metric comparison table
-  - grouped bar chart of metrics across models
-  - ROC curves with AUC values
-  - threshold-vs-metric plot for Linear Regression
+5) Environment/reproducibility
+- Cleaned `requirements.txt` to a minimal pinned set required by this project.
+- Added `.gitignore` and initialized/pushed repository to GitHub.
 
-10) Validation status
-- Re-ran notebook execution after each major update.
-- Final notebook executes end-to-end successfully in the configured environment.
-
-Notes
------
-- This log summarizes implementation changes and rationale-ready decisions for report writing.
-- Work completed using CODEX
-- Main final deliverables expected:
-  - runnable notebook (`.ipynb`)
-  - 5-7 page PDF report with embedded plots and discussion.
+Current status
+--------------
+- Notebook is consistent end-to-end.
+- Main comparison and ablation outputs now align methodologically.
+- Project is committed and pushed to remote repository.
