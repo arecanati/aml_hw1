@@ -2,5 +2,4 @@ venv/
 __pycache__/
 .ipynb_checkpoints/
 *.pyc
-reports/aml_hw1_report_draft.md
-reports/aml_hw1_report_extended_draft.md
+reports/
